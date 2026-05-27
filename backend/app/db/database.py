@@ -15,6 +15,7 @@ connect_args = (
     if settings.DATABASE_URL.startswith("sqlite")
     else {}
 )
+print("DATABASE_URL =", settings.DATABASE_URL)
 
 engine = create_engine(
     settings.DATABASE_URL,
