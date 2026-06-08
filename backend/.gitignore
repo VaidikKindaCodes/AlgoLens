@@ -1,0 +1,107 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+
+venv/
+env/
+ENV/
+.venv/
+
+# Environment Variables
+
+.env
+.env.local
+.env.*
+!.env.example
+
+# IDEs
+
+.vscode/
+.idea/
+
+# OS Files
+
+.DS_Store
+Thumbs.db
+
+# Logs
+
+*.log
+logs/
+
+# Testing
+
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Type Checking
+
+.mypy_cache/
+.pyre/
+
+# Build
+
+build/
+dist/
+*.egg-info/
+
+# Database
+
+*.db
+*.sqlite3
+
+# Alembic
+
+alembic/versions/**pycache**/
+
+# Docker
+
+docker-compose.override.yml
+
+# Uploaded Files
+
+uploads/
+media/
+
+# Cache
+
+.cache/
+
+# Secrets
+
+secrets/
+*.pem
+*.key
+
+# FastAPI
+
+instance/
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+# Redis Dumps
+
+dump.rdb
+
+# Temporary Files
+
+tmp/
+temp/
+
+# Mac
+
+.AppleDouble
+.LSOverride
+
+# Windows
+
+ehthumbs.db
+Desktop.ini
