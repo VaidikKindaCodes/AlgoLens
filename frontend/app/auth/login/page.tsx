@@ -37,6 +37,28 @@ export default function LoginPage() {
     },
   });
 
+  const googleMutation = useMutation({
+    mutationFn: async () => {
+      const response = await authService.getGoogleAuthUrl();
+      window.location.assign(response.url);
+    },
+    onError: (error) => {
+      toast.error("Unable to start Google login. Please try again.");
+      console.error(error);
+    },
+  });
+
+  const googleMutation = useMutation({
+    mutationFn: async () => {
+      const response = await authService.getGoogleAuthUrl();
+      window.location.assign(response.url);
+    },
+    onError: (error) => {
+      toast.error("Unable to start Google login. Please try again.");
+      console.error(error);
+    },
+  });
+
   const handleLogin = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
@@ -96,6 +118,16 @@ export default function LoginPage() {
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? "Signing in..." : "Sign in"}
+            </Button>
+
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              onClick={() => googleMutation.mutate()}
+              disabled={googleMutation.isPending}
+            >
+              {googleMutation.isPending ? "Redirecting..." : "Sign in with Google"}
             </Button>
           </form>
 

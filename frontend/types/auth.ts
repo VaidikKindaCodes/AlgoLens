@@ -17,6 +17,19 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface VerifyOtpRequest {
+  email: string;
+  code: string;
+}
+
+export interface ResendOtpRequest {
+  email: string;
+}
+
+export interface UrlResponse {
+  url: string;
+}
+
 export interface TokenResponse {
   access_token: string;
   refresh_token: string;

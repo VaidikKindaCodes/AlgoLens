@@ -21,6 +21,15 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str = ""
     GEMINI_API_KEY: str = ""
 
+    FRONTEND_URL: str = "http://localhost:3000"
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = ""
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM: str = "noreply@algolens.com"
+    OTP_EXPIRE_MINUTES: int = 15
+    OTP_LENGTH: int = 6
+
     # Encryption key for storing user API keys (generate with Fernet)
     AI_KEYS_ENCRYPTION_KEY: str = ""
 

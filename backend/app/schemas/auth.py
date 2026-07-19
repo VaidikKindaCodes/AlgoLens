@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl, field_validator
 
 
 class RegisterRequest(BaseModel):
@@ -44,6 +44,33 @@ class LoginRequest(BaseModel):
 
 class RefreshRequest(BaseModel):
     refresh_token: str = Field(min_length=1)
+
+
+class VerifyOtpRequest(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6)
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, value: EmailStr) -> str:
+        return str(value).lower()
+
+
+class ResendOtpRequest(BaseModel):
+    email: EmailStr
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, value: EmailStr) -> str:
+        return str(value).lower()
+
+
+class GoogleAuthRequest(BaseModel):
+    code: str = Field(min_length=1)
+
+
+class UrlResponse(BaseModel):
+    url: HttpUrl
 
 
 class UserResponse(BaseModel):

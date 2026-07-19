@@ -38,6 +38,11 @@ class User(Base):
     )
 
     # Default AI credential saved on user schema for quick access
+    email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    google_id: Mapped[str | None] = mapped_column(String(255), unique=True, index=True, nullable=True)
+    otp_code_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    otp_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
     ai_provider: Mapped[str | None] = mapped_column(String(64), nullable=True)
     ai_encrypted_key: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     ai_model_name: Mapped[str | None] = mapped_column(String(128), nullable=True)

@@ -11,13 +11,10 @@ import { BrandMark } from "@/components/shared/brand-mark";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authService } from "@/services/auth.service";
-import { useAuthStore } from "@/store/auth-store";
 import type { RegisterRequest } from "@/types/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { setSession } = useAuthStore();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,10 +24,11 @@ export default function RegisterPage() {
     mutationFn: async (payload: RegisterRequest) => {
       return authService.register(payload);
     },
-    onSuccess: (data) => {
-      setSession(data);
-      toast.success("Account created successfully! Please add your AI key in Settings.");
-      router.push("/settings");
+    onSuccess: () => {
+      toast.success(
+        "Account created. Check your email for a verification code.",
+      );
+      router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
     },
     onError: (error) => {
       toast.error("Registration failed. Please try again.");
@@ -40,7 +38,6 @@ export default function RegisterPage() {
 
   const handleRegister = useCallback(
     (e: React.FormEvent) => {
-      console.log("hello hello ");
       e.preventDefault();
       if (!name || !email || !password || !confirmPassword) {
         toast.error("Please fill in all fields");
@@ -52,11 +49,11 @@ export default function RegisterPage() {
         return;
       }
 
-      if (password.length < 6) {
-        toast.error("Password must be at least 6 characters");
+      if (password.length < 8) {
+        toast.error("Password must be at least 8 characters");
         return;
       }
-      console.log("registering")
+
       registerMutation.mutate({ name, email, password });
     },
     [name, email, password, confirmPassword, registerMutation],
@@ -74,7 +71,7 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <form  onSubmit={handleRegister} className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-4">
             <div>
               <Label htmlFor="name">Full Name</Label>
               <Input
@@ -130,8 +127,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               className="w-full"
-              onClick={() => console.log("BUTTON CLICKED")}
-              // disabled={registerMutation.isPending}
+              disabled={registerMutation.isPending}
             >
               {registerMutation.isPending ? "Creating account..." : "Sign up"}
             </Button>

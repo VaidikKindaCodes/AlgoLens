@@ -2,8 +2,11 @@ import { apiRequest } from "@/lib/api-client";
 import type {
   LoginRequest,
   RegisterRequest,
+  ResendOtpRequest,
   TokenResponse,
+  UrlResponse,
   User,
+  VerifyOtpRequest,
 } from "@/types/auth";
 
 function toUsername(name: string) {
@@ -26,8 +29,8 @@ export const authService = {
     });
   },
 
-  async register(payload: RegisterRequest) {
-    await apiRequest<User>({
+  register(payload: RegisterRequest) {
+    return apiRequest<User>({
       method: "POST",
       url: "/auth/register",
       data: {
@@ -36,14 +39,38 @@ export const authService = {
         password: payload.password,
       },
     });
-
-    return this.login({ email: payload.email, password: payload.password });
   },
 
   me() {
     return apiRequest<User>({ method: "GET", url: "/auth/me" });
   },
+  verifyOtp(payload: VerifyOtpRequest) {
+    return apiRequest<TokenResponse>({
+      method: "POST",
+      url: "/auth/verify-otp",
+      data: payload,
+    });
+  },
 
+  resendOtp(payload: ResendOtpRequest) {
+    return apiRequest<{ message: string }>({
+      method: "POST",
+      url: "/auth/resend-otp",
+      data: payload,
+    });
+  },
+
+  getGoogleAuthUrl() {
+    return apiRequest<UrlResponse>({ method: "GET", url: "/auth/google/url" });
+  },
+
+  authenticateWithGoogle(code: string) {
+    return apiRequest<TokenResponse>({
+      method: "POST",
+      url: "/auth/google",
+      data: { code },
+    });
+  },
   logout(refreshToken: string) {
     return apiRequest<{ message: string }>({
       method: "POST",
