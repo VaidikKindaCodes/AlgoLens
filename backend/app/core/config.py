@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     CODE_EXECUTION_TIMEOUT_SECONDS: int = 5
     MAX_CODE_LENGTH: int = 10000
     MAX_INPUT_LENGTH: int = 5000
+    DOCKER_EXECUTOR_CPUS: float = 0.5
+    DOCKER_EXECUTOR_MEMORY: str = "256m"
+    DOCKER_EXECUTOR_PIDS_LIMIT: int = 64
+    DOCKER_IMAGE_BUILD_TIMEOUT_SECONDS: int = 120
 
     # Supported Languages
     SUPPORTED_LANGUAGES: list[str] = ["python", "cpp", "java", "javascript", "go"]

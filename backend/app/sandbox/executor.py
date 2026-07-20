@@ -1,12 +1,11 @@
 import os
-import subprocess
 import tempfile
 import time
-import sys
 from pathlib import Path
 
 from app.core.exceptions import InvalidLanguageError
-from app.sandbox.languages import LANGUAGE_EXTENSIONS, SupportedLanguage
+from app.sandbox.docker_runner import DockerRunner
+from app.sandbox.languages import LANGUAGE_COMPILE_COMMANDS, LANGUAGE_EXTENSIONS, LANGUAGE_RUN_COMMANDS, SupportedLanguage
 
 
 class ExecutionResult:
@@ -34,32 +33,13 @@ class CodeExecutor:
         return "program.exe" if os.name == "nt" else "program"
 
     def _compile_command(self, language: str, tmpdir_path: Path) -> list[str] | None:
-        executable_path = tmpdir_path / self._compiled_executable_name()
-        source_path = tmpdir_path / f"program{LANGUAGE_EXTENSIONS[language]}"
-
-        if language == "cpp":
-            return ["g++", "-o", str(executable_path), str(source_path)]
-        if language == "java":
-            return ["javac", str(tmpdir_path / "Program.java")]
-        if language == "go":
-            return ["go", "build", "-o", str(executable_path), str(source_path)]
-        return None
+        return LANGUAGE_COMPILE_COMMANDS.get(language)
 
     def _run_command(self, language: str, tmpdir_path: Path) -> list[str]:
-        source_path = tmpdir_path / f"program{LANGUAGE_EXTENSIONS[language]}"
-        executable_path = tmpdir_path / self._compiled_executable_name()
-
-        if language == "python":
-            return [sys.executable, str(source_path)]
-        if language == "cpp":
-            return [str(executable_path)]
-        if language == "java":
-            return ["java", "-cp", str(tmpdir_path), "Program"]
-        if language == "javascript":
-            return ["node", str(source_path)]
-        if language == "go":
-            return [str(executable_path)]
-        raise InvalidLanguageError(language)
+        try:
+            return LANGUAGE_RUN_COMMANDS[language]
+        except KeyError:
+            raise InvalidLanguageError(language)
 
     def validate_language(self, language: str) -> None:
         try:
@@ -81,51 +61,20 @@ class CodeExecutor:
 
             try:
                 compile_cmd = self._compile_command(language, tmpdir_path)
-                if compile_cmd:
-                    result = subprocess.run(
-                        compile_cmd,
-                        cwd=tmpdir_path,
-                        capture_output=True,
-                        timeout=self.timeout_seconds,
-                        text=True,
-                    )
-                    if result.returncode != 0:
-                        return ExecutionResult(
-                            status="compile_error",
-                            error=result.stderr or result.stdout,
-                        )
-
                 run_cmd = self._run_command(language, tmpdir_path)
-                start_time = time.time()
-
-                result = subprocess.run(
+                docker_result = DockerRunner(timeout_seconds=self.timeout_seconds).execute(
+                    language,
+                    tmpdir_path,
+                    compile_cmd,
                     run_cmd,
-                    cwd=tmpdir_path,
-                    input=custom_input or "",
-                    capture_output=True,
-                    timeout=self.timeout_seconds,
-                    text=True,
+                    custom_input,
                 )
 
-                execution_time = (time.time() - start_time) * 1000
-
-                if result.returncode != 0:
-                    return ExecutionResult(
-                        status="runtime_error",
-                        error=result.stderr or result.stdout,
-                        execution_time_ms=execution_time,
-                    )
-
                 return ExecutionResult(
-                    status="accepted",
-                    output=result.stdout,
-                    execution_time_ms=execution_time,
-                )
-
-            except subprocess.TimeoutExpired:
-                return ExecutionResult(
-                    status="time_limit",
-                    error=f"Code execution exceeded {self.timeout_seconds} seconds",
+                    status=docker_result.status,
+                    output=docker_result.output,
+                    error=docker_result.error,
+                    execution_time_ms=docker_result.execution_time_ms,
                 )
             except Exception as e:
                 return ExecutionResult(
